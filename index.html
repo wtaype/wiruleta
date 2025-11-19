@@ -1,25 +1,145 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="Cielo">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="./smile.png" type="image/x-icon">
+<meta name="theme-color" content="#0EBEFF">
 <style id='loadingSmile' type='text/css'>
-.loadingSmile{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#ffffff;display:flex;align-items:center;justify-content:center;z-index:9999;animation:fadeOut 0.8s ease-in-out 3s forwards;}.loadingSmile img{width:12vh;height:12vh;border-radius:50%;position:relative;z-index:2;animation:zoomPulse 2s ease-in-out infinite;box-shadow:0 0 30px rgba(255,215,0,0.6),0 8px 32px rgba(0,0,0,0.1),inset 0 2px 4px rgba(255,255,255,0.8);}.loadingSmile img::before{content:'';position:absolute;top:-8px;left:-8px;width:calc(100% + 16px);height:calc(100% + 16px);border:2px solid transparent;border-top:2px solid #ffd700;border-right:2px solid #ffb347;border-radius:50%;animation:spin 1.2s linear infinite;z-index:1;}.loadingSmile img::after{content:'';position:absolute;top:-15px;left:-15px;width:calc(100% + 30px);height:calc(100% + 30px);border:1px solid transparent;border-left:1px solid #ff8c00;border-bottom:1px solid #ffa500;border-radius:50%;animation:spin 2s linear infinite reverse;z-index:0;}@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}@keyframes zoomPulse{0%,100%{transform:scale(1);filter:brightness(1);box-shadow:0 0 30px rgba(255,215,0,0.6),0 8px 32px rgba(0,0,0,0.1),inset 0 2px 4px rgba(255,255,255,0.8);}50%{transform:scale(1.1);filter:brightness(1.2);box-shadow:0 0 50px rgba(255,215,0,0.8),0 12px 40px rgba(0,0,0,0.15),inset 0 3px 6px rgba(255,255,255,0.9);}}@keyframes fadeOut{0%{opacity:1;transform:scale(1);}50%{opacity:0.8;transform:scale(1.15);}100%{opacity:0;transform:scale(0.85);visibility:hidden;}}
+.loadingSmile{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#FFF;display:flex;align-items:center;justify-content:center;z-index:9999;animation:fadeOut 0.6s ease-in-out 2s forwards;}.loadingSmile img{width:15vh;height:15vh;border-radius:50%;animation:spin 1s linear infinite,pulse 1.5s ease-in-out infinite;box-shadow:0 0 50px rgba(0,168,230,0.5),0 10px 40px rgba(0,0,0,0.1);}@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}@keyframes fadeOut{0%{opacity:1;}100%{opacity:0;visibility:hidden;}}
 </style> 
-<title>Dashboard - Reto del mes</title>
-  <script type="module" crossorigin src="/wiruleta/assets/main-DTvTkBD3.js"></script>
-  <link rel="stylesheet" crossorigin href="/wiruleta/assets/main-Dnz4Dx8H.css">
+<title>🎡 WIRULETA - Sorteo Inteligente</title>
+  <script type="module" crossorigin src="/wiruleta/assets/main-DrMCl0sH.js"></script>
+  <link rel="stylesheet" crossorigin href="/wiruleta/assets/main-D1bd9QSE.css">
 </head>
 <body>
-<div class="app">
-  <div class="loadingSmile"><img src="./smile.png" alt="Avatar" class="user-avatar"/></div>
-</div>
-  
-<h1>Hola mundo como estas grrr</h1>
+<div class="loadingSmile"><img src="./smile.png" alt="WiRuleta"/></div>
 
-<button>Consultar respuesta genial</button>
+<!-- 🎨 SELECTOR DE TEMAS FLOTANTE -->
+<div class="tms_flt">
+  <div class="witemas"></div>
+</div>
+
+<!-- 🎯 CONTAINER PRINCIPAL -->
+<div class="cnt_prl">
   
+  <!-- 📌 HEADER -->
+  <header class="hdr_top">
+    <div class="hdr_izq">
+      <i class="fas fa-dharmachakra"></i>
+      <h1>WIRULETA</h1>
+      <span class="hdr_sub">Momento para sortear quién toca primero!</span>
+    </div>
+  </header>
+
+  <!-- 🏆 GANADOR DESTACADO (SIEMPRE VISIBLE) -->
+  <div class="gnd_crd est_lst" id="gnd_crd">
+    <i class="fas fa-circle-notch gnd_icn" id="gnd_icn"></i>
+    <span class="gnd_txt" id="gnd_txt">Listo para elegir ganador</span>
+  </div>
+
+  <!-- 🎡 CONTENIDO PRINCIPAL (60% + 38%) -->
+  <div class="cnt_grd">
+    
+    <!-- 🎯 IZQUIERDA: RULETA 60% -->
+    <div class="rlt_col">
+      <div class="rlt_cnt">
+        <canvas id="rlt_cnv" width="500" height="500"></canvas>
+        <div class="rlt_ind">
+          <i class="fas fa-caret-down"></i>
+        </div>
+        <button class="btn_gir" id="btn_gir">
+          <i class="fas fa-play"></i>
+          <span>GIRAR</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 📝 DERECHA: PARTICIPANTES 38% -->
+    <div class="prt_col">
+      <div class="prt_hdr">
+        <h3><i class="fas fa-users"></i> Ingresar Participantes</h3>
+      </div>
+
+      <div class="prt_opc">
+        <label class="chk_lbl">
+          <input type="checkbox" id="chk_elm" class="chk_inp" checked>
+          <span class="chk_cst"></span>
+          <span class="chk_txt">Eliminar ganador después</span>
+        </label>
+        <label class="chk_lbl">
+          <input type="checkbox" id="chk_chc" class="chk_inp">
+          <span class="chk_cst"></span>
+          <span class="chk_txt">Chocolatear</span>
+        </label>
+      </div>
+
+      <textarea id="txt_prt" class="txt_prt" placeholder="Escribe cada participante en una línea&#10;Ejemplo:&#10;Grupo 1&#10;Grupo 2&#10;Grupo 3"></textarea>
+
+      <div class="prt_btns">
+        <button class="btn_pry" id="btn_cmz">
+          <i class="fas fa-rocket"></i>
+          <span>Comenzar</span>
+        </button>
+        <button class="btn_scn" id="btn_rst">
+          <i class="fas fa-redo"></i>
+          <span>Resetear</span>
+        </button>
+        <button class="btn_dnr" id="btn_lmp">
+          <i class="fas fa-trash"></i>
+          <span>Limpiar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🏆 MODAL PODIO -->
+  <div class="podio_modal" id="podio_modal" style="display:none;">
+    <div class="podio_cnt">
+      <div class="podio_hdr">
+        <h2><i class="fas fa-trophy"></i> ¡Sorteo Completado!</h2>
+      </div>
+      <div class="podio_body" id="podio_body"></div>
+      <div class="podio_btns">
+        <button class="btn_pry" id="btn_nvs">
+          <i class="fas fa-redo"></i>
+          <span>Nuevo Sorteo</span>
+        </button>
+        <button class="btn_scn" id="btn_crp">
+          <i class="fas fa-times"></i>
+          <span>Cerrar Podio</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📜 HISTORIAL -->
+  <div class="hst_sec">
+    <div class="hst_hdr">
+      <h3><i class="fas fa-history"></i> Historial de Sorteos</h3>
+      <button class="btn_ico" id="btn_lmp_hst" title="Limpiar historial">
+        <i class="fas fa-broom"></i>
+      </button>
+    </div>
+    <div class="hst_tbl">
+      <table id="tbl_hst">
+        <thead>
+          <tr>
+            <th><i class="fas fa-hashtag"></i></th>
+            <th><i class="fas fa-trophy"></i> Ganador</th>
+            <th><i class="fas fa-calendar-alt"></i> Fecha y Hora</th>
+            <th><i class="fas fa-sort-numeric-down"></i> Orden Final</th>
+            <th><i class="fas fa-cog"></i></th>
+          </tr>
+        </thead>
+        <tbody id="tbl_bdy">
+          <!-- Se llenará dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
 </body>
 </html>
- 
