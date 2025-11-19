@@ -4,15 +4,15 @@ export { footer }; window.footer = footer;
 const lanzamiento = 2024;
 const autor = '@wilder.taype';
 const link = 'https://wtaype.github.io/';
-const version = 'v10';
+const version = 'v11';
 
 
 /** ACTUALIZACION TAG version dia hora   [START]  
-git add . ; git commit -m "Actualizacion Principal v10.11.39"
+git add . ; git commit -m "Actualizacion Principal v11.11.39"
 git push origin main
 
 // Actualizar despues de main- 
-git tag v10 -m "Version v10" ; git push origin v10
+git tag v11 -m "Version v11" ; git push origin v11
 
  ACTUALIZACION TAG[END] */ 
 
