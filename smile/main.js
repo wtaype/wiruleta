@@ -28,6 +28,7 @@ let girando = false;
 let anguloActual = 0;
 let ganadorSeleccionado = null;
 let sorteoActualId = null;
+let tiempoEliminacion = null; 
 
 // ========================================
 // 🎯 ELEMENTOS DOM (CACHÉ)
@@ -81,6 +82,7 @@ function registrarEventos() {
   dom.btnNuevoSorteo.on('click', nuevoSorteo);
   dom.btnCerrarPodio.on('click', cerrarPodio);
   dom.txtParticipantes.on('input', actualizarParticipantes);
+  dom.cardGanador.on('click', '.btn_eliminar_ganador', eliminarGanadorManual);
 }
 
 // ========================================
@@ -88,16 +90,48 @@ function registrarEventos() {
 // ========================================
 function actualizarEstadoGanador(estado, datos = {}) {
   const config = {
-    listo: { icono: 'fa-circle-notch', texto: 'Listo para elegir ganador', clase: 'est_lst' },
-    girando: { icono: 'fa-spinner fa-spin', texto: 'Eligiendo al ganador...', clase: 'est_gir' },
-    ganador: { icono: datos.icono || 'fa-trophy', texto: `Ganador es: ${datos.nombre}`, clase: 'est_gnd' },
-    final: { icono: 'fa-crown', texto: `🏆 Último ganador es: ${datos.nombre}`, clase: 'est_fnl' }
+    listo: { 
+      icono: 'fa-circle-notch', 
+      texto: 'Listo para elegir ganador', 
+      clase: 'est_lst',
+      mostrarBotonX: false
+    },
+    girando: { 
+      icono: 'fa-spinner fa-spin', 
+      texto: 'Eligiendo al ganador...', 
+      clase: 'est_gir',
+      mostrarBotonX: false
+    },
+    ganador: { 
+      icono: datos.icono || 'fa-trophy', 
+      texto: `Ganador es: ${datos.nombre}`, 
+      clase: 'est_gnd',
+      mostrarBotonX: true // ✅ Mostrar botón X
+    },
+    final: { 
+      icono: 'fa-crown', 
+      texto: `🏆 Último ganador es: ${datos.nombre}`, 
+      clase: 'est_fnl',
+      mostrarBotonX: false
+    }
   }[estado];
   
   dom.cardGanador.removeClass('est_lst est_gir est_gnd est_fnl').addClass(config.clase);
   dom.icnGanador.attr('class', `fas ${config.icono} gnd_icn`);
   dom.txtGanador.text(config.texto);
+  
+  // ✅ AGREGAR/QUITAR BOTÓN X
+  $('.btn_eliminar_ganador').remove();
+  
+  if (config.mostrarBotonX && dom.chkEliminar.is(':checked')) {
+    dom.cardGanador.append(`
+      <button class="btn_eliminar_ganador" title="Eliminar ganador y continuar (o espera 5 min)">
+        <i class="fas fa-times"></i>
+      </button>
+    `);
+  }
 }
+
 
 // ========================================
 // 🎨 ACTUALIZAR PARTICIPANTES
@@ -236,7 +270,7 @@ function girarRuleta() {
 // 🎬 ANIMAR GIRO
 // ========================================
 function animarGiro(anguloObjetivo) {
-  const duracion = 4000 + Math.random() * 2000;
+  const duracion = 4000 + Math.random() * 2000; // ⏱️ 4-6 segundos
   const inicio = Date.now();
   
   const animar = () => {
@@ -246,7 +280,12 @@ function animarGiro(anguloObjetivo) {
     anguloActual = ease * anguloObjetivo;
     dibujarRuleta();
     
-    progreso < 1 ? requestAnimationFrame(animar) : finalizarGiro();
+    if (progreso < 1) {
+      requestAnimationFrame(animar);
+    } else {
+      // ✅ Esperar 500ms DESPUÉS de que termine la animación visual
+      setTimeout(() => finalizarGiro(), 500);
+    }
   };
   
   animar();
@@ -256,36 +295,103 @@ function animarGiro(anguloObjetivo) {
 // 🏆 FINALIZAR GIRO ✅ GUARDAR CADA GANADOR
 // ========================================
 function finalizarGiro() {
-  girando = false;
-  dom.btnGirar.prop('disabled', false).removeClass('girando');
-  dom.btnComenzar.prop('disabled', false);
-  
-  const anguloNormalizado = (anguloActual % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-  const anguloGanador = (Math.PI * 2 - anguloNormalizado + Math.PI / 2) % (Math.PI * 2);
-  const indiceGanador = Math.floor(anguloGanador / ((Math.PI * 2) / participantes.length));
-  
+  const total = participantes.length;
+  if (total === 0) return;
+
+  // Normalizar ángulo al rango [0, 2π)
+  const full = Math.PI * 2;
+  const anguloNorm = ((anguloActual % full) + full) % full;
+
+  // Ángulo donde apunta el puntero (arriba = -90° = -π/2)
+  const anguloPuntero = -Math.PI / 2;
+
+  // Ángulo efectivo sobre la ruleta
+  let anguloEfectivo = anguloPuntero - anguloNorm;
+  anguloEfectivo = ((anguloEfectivo % full) + full) % full;
+
+  const tamSegmento = full / total;
+  let indiceGanador = Math.floor(anguloEfectivo / tamSegmento);
+
+  // Seguridad por si se va al límite
+  if (indiceGanador < 0) indiceGanador = 0;
+  if (indiceGanador >= total) indiceGanador = total - 1;
+
   ganadorSeleccionado = participantes[indiceGanador];
   ordenCompleto.push(ganadorSeleccionado);
-  
+
   actualizarEstadoGanador('ganador', ganadorSeleccionado);
   Notificacion(`¡${ganadorSeleccionado.nombre} es el ganador!`, 'success', 3000);
-  
-  // ✅ GUARDAR CADA GANADOR INMEDIATAMENTE
+
   guardarGanadorIndividual(ganadorSeleccionado);
-  
+
+  setTimeout(() => {
+    girando = false;
+    dom.btnGirar.prop('disabled', false).removeClass('girando');
+    dom.btnComenzar.prop('disabled', false);
+  }, 800);
+
   if (dom.chkEliminar.is(':checked')) {
-    setTimeout(() => {
-      const lineas = dom.txtParticipantes.val().split('\n');
-      const nuevasLineas = lineas.filter(l => l.trim() !== ganadorSeleccionado.nombre);
-      dom.txtParticipantes.val(nuevasLineas.join('\n'));
-      actualizarParticipantes();
-      
-      setTimeout(() => {
-        if (participantes.length > 0) actualizarEstadoGanador('listo');
-      }, 2000);
-    }, 2000);
+    if (tiempoEliminacion) clearTimeout(tiempoEliminacion);
+    tiempoEliminacion = setTimeout(() => {
+      eliminarGanadorAutomatico();
+    }, 300000);
   }
 }
+
+// ========================================
+// 🗑️ ELIMINAR GANADOR AUTOMÁTICO ✅ NUEVA FUNCIÓN
+// ========================================
+function eliminarGanadorAutomatico() {
+  if (!ganadorSeleccionado) return;
+  
+  const lineas = dom.txtParticipantes.val().split('\n');
+  const nuevasLineas = lineas.filter(l => l.trim() !== ganadorSeleccionado.nombre);
+  dom.txtParticipantes.val(nuevasLineas.join('\n'));
+  
+  Notificacion(`⏰ ${ganadorSeleccionado.nombre} eliminado automáticamente (5 min)`, 'warning', 3000);
+  
+  actualizarParticipantes();
+  
+  setTimeout(() => {
+    if (participantes.length > 0) {
+      actualizarEstadoGanador('listo');
+    } else {
+      Notificacion('No quedan más participantes', 'warning', 2000);
+    }
+  }, 1000);
+  
+  tiempoEliminacion = null;
+}
+
+// ========================================
+// 🗑️ ELIMINAR GANADOR MANUAL ✅ NUEVA FUNCIÓN
+// ========================================
+function eliminarGanadorManual() {
+  if (!ganadorSeleccionado) return;
+  
+  // Cancelar eliminación automática
+  if (tiempoEliminacion) {
+    clearTimeout(tiempoEliminacion);
+    tiempoEliminacion = null;
+  }
+  
+  const lineas = dom.txtParticipantes.val().split('\n');
+  const nuevasLineas = lineas.filter(l => l.trim() !== ganadorSeleccionado.nombre);
+  dom.txtParticipantes.val(nuevasLineas.join('\n'));
+  
+  Notificacion(`✋ ${ganadorSeleccionado.nombre} eliminado`, 'info', 2000);
+  
+  actualizarParticipantes();
+  
+  setTimeout(() => {
+    if (participantes.length > 0) {
+      actualizarEstadoGanador('listo');
+    } else {
+      Notificacion('No quedan más participantes', 'warning', 2000);
+    }
+  }, 500);
+}
+
 
 // ========================================
 // 💾 GUARDAR GANADOR INDIVIDUAL ✅ NUEVO
@@ -475,6 +581,12 @@ function limpiarHistorial() {
 // 🔄 RESETEAR
 // ========================================
 function resetear() {
+  // ✅ Cancelar timeout si existe
+  if (tiempoEliminacion) {
+    clearTimeout(tiempoEliminacion);
+    tiempoEliminacion = null;
+  }
+  
   anguloActual = 0;
   girando = false;
   ganadorSeleccionado = null;
@@ -491,6 +603,12 @@ function resetear() {
 // 🗑️ LIMPIAR TODO
 // ========================================
 function limpiar() {
+  // ✅ Cancelar timeout si existe
+  if (tiempoEliminacion) {
+    clearTimeout(tiempoEliminacion);
+    tiempoEliminacion = null;
+  }
+  
   dom.txtParticipantes.val('');
   participantes = [];
   anguloActual = 0;
@@ -505,10 +623,12 @@ function limpiar() {
 // 🎨 LOOP DE ANIMACIÓN
 // ========================================
 function loop() {
-  if (!girando && participantes.length > 0) {
-    anguloActual += 0.001;
-    dibujarRuleta();
-  }
+  // ✅ ya no se mueve sola, solo se redibujará si tú llamas dibujarRuleta()
+  // if (!girando && participantes.length > 0) {
+  //   anguloActual += 0.001;
+  //   dibujarRuleta();
+  // }
+
   requestAnimationFrame(loop);
 }
 
