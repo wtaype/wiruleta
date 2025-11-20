@@ -622,23 +622,7 @@ body::after {
 .hst_vac i {font-size:5vh;color:var(--mco);margin-bottom:1vh;display:block;}
 .hst_vac p {font-size:var(--fz_c5);color:var(--tx);}
 
-/* ========================================
-   📱 RESPONSIVO
-   ======================================== */
-@media (max-width:1024px) {
-  .cnt_grd {grid-template-columns:1fr;gap:3vh;}
-  .prt_opc {grid-template-columns:1fr;}
-  .podio_cnt {width:95%;}
-}
 
-@media (max-width:768px) {
-  .cnt_prl {width:95vw;}
-  .hdr_izq {flex-direction:column;text-align:center;gap:1vh;}
-  .hdr_sub {margin-left:0;}
-  .prt_btns {flex-direction:column;}
-  .podio_btns {flex-direction:column;}
-  .podio_btns .btn_pry,.podio_btns .btn_scn {width:100%;}
-}
 
 /* ========================================
    🗑️ BOTÓN ELIMINAR GANADOR
@@ -682,6 +666,160 @@ body::after {
   position: relative;
 }
 
+
+/* ========================================
+   📱 RESPONSIVO
+   ======================================== */
+/* ...existing code... */
+
+@media (max-width:1024px) {
+  .cnt_grd {grid-template-columns:1fr;gap:3vh;}
+  .prt_opc {grid-template-columns:1fr;}
+  .podio_cnt {width:95%;}
+}
+
+@media (max-width:768px) {
+  .cnt_prl {width:95vw;}
+  .hdr_izq {flex-direction:column;text-align:center;gap:1vh;}
+  .hdr_sub {margin-left:0;}
+  .prt_btns {flex-direction:column;}
+  .podio_btns {flex-direction:column;}
+  .podio_btns .btn_pry,
+  .podio_btns .btn_scn {width:100%;}
+}
+
+/* ✅ NUEVO: MÓVIL PEQUEÑO <= 470px */
+@media (max-width:470px) {
+  .cnt_prl {
+    width:100vw;
+    margin:1vh auto;
+    padding:0 3vw;
+  }
+
+  .hdr_top {
+    padding:1.5vh 3vw;
+  }
+
+  .hdr_izq h1 {
+    font-size:1.6rem;
+  }
+
+  .hdr_sub {
+    font-size:0.8rem;
+  }
+
+  .gnd_crd {
+    padding:1.5vh 2vw;
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .gnd_txt {
+    font-size:1rem;
+  }
+
+  .cnt_grd {
+    grid-template-columns:1fr;
+    gap:2vh;
+  }
+
+  .rlt_cnt {
+    height:55vh;
+  }
+
+  #rlt_cnv {
+    max-width:85vw;
+    max-height:85vw;
+  }
+
+  .rlt_ind {
+    font-size:4vh;
+    top:1.2vh;
+  }
+
+  .btn_gir {
+    width:10vh;
+    height:10vh;
+  }
+
+  .btn_gir span {
+    font-size:0.8rem;
+  }
+
+  .prt_col {
+    padding:2vh 2vw;
+  }
+
+  .prt_opc {
+    grid-template-columns:1fr;
+  }
+
+  .txt_prt {
+    min-height:18vh;
+    font-size:0.8rem;
+  }
+
+  .prt_btns {
+    flex-direction:column;
+  }
+
+  .btn_pry,
+  .btn_scn,
+  .btn_dnr {
+    width:100%;
+  }
+
+  .hst_sec {
+    padding:2vh 2vw;
+  }
+
+  .hst_tbl {
+    max-height:50vh;
+    overflow-x:auto;
+  }
+
+  #tbl_hst {
+    font-size:0.8rem;
+  }
+
+  #tbl_hst th,
+  #tbl_hst td {
+    padding:0.8vh 0.6vw;
+    white-space:nowrap;
+  }
+
+  .hst_gnd span {
+    max-width:120px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .hst_fch span {
+    font-size:0.75rem;
+  }
+
+  .podio_cnt {
+    width:100%;
+    padding:3vh 4vw;
+  }
+
+  .podio_item {
+    flex-direction:row;
+    align-items:center;
+  }
+
+  .podio_btns {
+    flex-direction:column;
+  }
+
+  .podio_btns .btn_pry,
+  .podio_btns .btn_scn {
+    width:100%;
+  }
+}
+
 /* ========================================
    ✨ FIN CSS
    ======================================== */
+ 
